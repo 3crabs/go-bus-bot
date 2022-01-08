@@ -133,12 +133,12 @@ func main() {
 
 		case nav.PageAddMainPassenger:
 			switch u.state {
-			case menu:
+			case nav.Menu:
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите фамилию")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitLastName)
-			case waitLastName:
+				getUser(chatId).setState(nav.WaitLastName)
+			case nav.WaitLastName:
 				lastName, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -148,8 +148,8 @@ func main() {
 				getUser(chatId).pageAddPassengerData.LastName = lastName
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите имя")
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitFirstName)
-			case waitFirstName:
+				getUser(chatId).setState(nav.WaitFirstName)
+			case nav.WaitFirstName:
 				firstName, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -159,8 +159,8 @@ func main() {
 				getUser(chatId).pageAddPassengerData.FirstName = firstName
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите отчество")
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitMiddleName)
-			case waitMiddleName:
+				getUser(chatId).setState(nav.WaitMiddleName)
+			case nav.WaitMiddleName:
 				middleName, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -175,8 +175,8 @@ func main() {
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВыберите пол")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitGender)
-			case waitGender:
+				getUser(chatId).setState(nav.WaitGender)
+			case nav.WaitGender:
 				gender, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -190,8 +190,8 @@ func main() {
 				}
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите серию паспорта")
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitDocSeries)
-			case waitDocSeries:
+				getUser(chatId).setState(nav.WaitDocSeries)
+			case nav.WaitDocSeries:
 				docSeries, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -201,8 +201,8 @@ func main() {
 				getUser(chatId).pageAddPassengerData.DocSeries = docSeries
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите номер паспорта")
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitDocNum)
-			case waitDocNum:
+				getUser(chatId).setState(nav.WaitDocNum)
+			case nav.WaitDocNum:
 				docNum, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -212,8 +212,8 @@ func main() {
 				getUser(chatId).pageAddPassengerData.DocNum = docNum
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите почту")
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitEmail)
-			case waitEmail:
+				getUser(chatId).setState(nav.WaitEmail)
+			case nav.WaitEmail:
 				email, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
@@ -242,8 +242,8 @@ func main() {
 				)
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitSubmit)
-			case waitSubmit:
+				getUser(chatId).setState(nav.WaitSubmit)
+			case nav.WaitSubmit:
 				if text == "submit" {
 					_, err := b.AddPassenger(context.Background(), getUser(chatId).accessToken, getUser(chatId).pageAddPassengerData)
 					if err != nil {
@@ -254,7 +254,7 @@ func main() {
 					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nПассажир успешно добавлен")
 					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(menu)
+					getUser(chatId).setState(nav.Menu)
 				}
 			}
 
@@ -282,12 +282,12 @@ func main() {
 
 		case nav.PageFindRaces:
 			switch u.state {
-			case menu:
+			case nav.Menu:
 				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки отправления или ее часть")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitFromPattern)
-			case waitFromPattern:
+				getUser(chatId).setState(nav.WaitFromPattern)
+			case nav.WaitFromPattern:
 				fromPattern, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nНе смог разобрать текст, попробуйте позже")
@@ -301,14 +301,14 @@ func main() {
 				if len(*fromPoints) == 0 {
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nТочек отправления не найдено\n\nВведите название точки отправления или ее часть")
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitFromPattern)
+					getUser(chatId).setState(nav.WaitFromPattern)
 				}
 				if len(*fromPoints) == 1 {
 					id := (*fromPoints)[0].Id
 					getUser(chatId).pageFindRacesData.from = id
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки прибытия или ее часть")
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitToPattern)
+					getUser(chatId).setState(nav.WaitToPattern)
 				}
 				if len(*fromPoints) > 1 {
 					var keyboard [][]tgbot.InlineKeyboardButton
@@ -321,15 +321,15 @@ func main() {
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку отправления")
 					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitFrom)
+					getUser(chatId).setState(nav.WaitFrom)
 				}
-			case waitFrom:
+			case nav.WaitFrom:
 				id, _ := strconv.Atoi(buttonID)
 				getUser(chatId).pageFindRacesData.from = id
 				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки прибытия или ее часть")
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitToPattern)
-			case waitToPattern:
+				getUser(chatId).setState(nav.WaitToPattern)
+			case nav.WaitToPattern:
 				toPattern, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nНе смог разобрать текст, попробуйте позже")
@@ -343,7 +343,7 @@ func main() {
 				if len(*toPoints) == 0 {
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nТочек прибытия не найдено\n\nВведите название точки отправления или ее часть")
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitToPattern)
+					getUser(chatId).setState(nav.WaitToPattern)
 				}
 				if len(*toPoints) == 1 {
 					id := (*toPoints)[0].Id
@@ -362,7 +362,7 @@ func main() {
 					}
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите рейс")
 					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-					getUser(chatId).setState(waitRace)
+					getUser(chatId).setState(nav.WaitRace)
 					_, _ = bot.Send(msg)
 				}
 				if len(*toPoints) > 1 {
@@ -376,9 +376,9 @@ func main() {
 					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку прибытия")
 					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitTo)
+					getUser(chatId).setState(nav.WaitTo)
 				}
-			case waitTo:
+			case nav.WaitTo:
 				id, _ := strconv.Atoi(buttonID)
 				getUser(chatId).pageFindRacesData.to = id
 				date := getUser(chatId).pageFindRacesData
@@ -395,19 +395,19 @@ func main() {
 				}
 				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите рейс")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-				getUser(chatId).setState(waitRace)
+				getUser(chatId).setState(nav.WaitRace)
 				_, _ = bot.Send(msg)
-			case waitRace:
+			case nav.WaitRace:
 			}
 
 		case nav.PageLogin:
 			switch u.state {
-			case menu:
+			case nav.Menu:
 				msg := tgbot.NewMessage(chatId, "Вход\n\nВведите номер телефона")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitPhone)
-			case waitPhone:
+				getUser(chatId).setState(nav.WaitPhone)
+			case nav.WaitPhone:
 				phone, err := normalize.Phone(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Вход\n\nНе удалост разобрать номер, повторите попытку ввода")
@@ -423,22 +423,22 @@ func main() {
 				msg := tgbot.NewMessage(chatId, "Вход\n\nПомните пароль?")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitSelectLogin)
-			case waitSelectLogin:
+				getUser(chatId).setState(nav.WaitSelectLogin)
+			case nav.WaitSelectLogin:
 				if text == "loginWithSMS" {
 					if err := b.Register(context.Background(), getUser(chatId).pageLoginData.Phone); err != nil {
 						log.Println(err)
 					}
 					msg := tgbot.NewMessage(chatId, fmt.Sprintf("Вход\n\nНа номер %s отправлено смс с паролем\n\nВведите пароль", getUser(chatId).pageLoginData.Phone))
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitPassword)
+					getUser(chatId).setState(nav.WaitPassword)
 				}
 				if text == "loginWithoutSMS" {
 					msg := tgbot.NewMessage(chatId, "Вход\n\nВведите пароль")
 					_, _ = bot.Send(msg)
-					getUser(chatId).setState(waitPassword)
+					getUser(chatId).setState(nav.WaitPassword)
 				}
-			case waitPassword:
+			case nav.WaitPassword:
 				password, err := normalize.String(text)
 				if err != nil {
 					msg := tgbot.NewMessage(chatId, "Вход\n\nНе удалось разобрать пароль, повторите попытку ввода")
@@ -457,7 +457,7 @@ func main() {
 				msg := tgbot.NewMessage(chatId, "Вход\n\nВы успешно вошли")
 				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
 				_, _ = bot.Send(msg)
-				getUser(chatId).setState(menu)
+				getUser(chatId).setState(nav.Menu)
 			}
 		}
 	}

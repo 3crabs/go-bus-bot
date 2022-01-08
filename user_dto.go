@@ -7,39 +7,9 @@ import (
 	"strings"
 )
 
-type state string
-
-const (
-	menu = state("menu")
-
-	// pageLogin
-	waitPhone       = state("waitPhone")
-	waitSelectLogin = state("waitSelectLogin")
-	waitPassword    = state("waitPassword")
-
-	// pageAddPassenger
-	waitGender     = state("waitGender")
-	waitLastName   = state("waitLastName")
-	waitFirstName  = state("waitFirstName")
-	waitMiddleName = state("waitMiddleName")
-	waitDocSeries  = state("waitDocSeries")
-	waitDocNum     = state("waitDocNum")
-	waitEmail      = state("waitEmail")
-	_              = state("waitPhone") // waitPhone
-	waitSubmit     = state("waitSubmit")
-
-	// pageFindRaces
-	waitFromPattern = state("waitFromPattern")
-	waitFrom        = state("waitFrom")
-	waitToPattern   = state("waitToPattern")
-	waitTo          = state("waitTo")
-	waitDate        = state("waitDate")
-	waitRace        = state("waitRace")
-)
-
 type user struct {
 	page                 nav.Page
-	state                state
+	state                nav.State
 	pageLoginData        bus.PhoneDTO
 	passengers           []bus.PassengerDTO
 	pageAddPassengerData bus.PassengerCreateDTO
@@ -57,7 +27,7 @@ type user struct {
 func newUser() *user {
 	return &user{
 		page:  nav.PageMain,
-		state: menu,
+		state: nav.Menu,
 		login: false,
 	}
 }
@@ -88,10 +58,10 @@ func (u *user) setPage(data string) {
 		u.page = nav.Page(data)
 	}
 	if u.page == nav.PageMain {
-		u.state = menu
+		u.state = nav.Menu
 	}
 }
 
-func (u *user) setState(s state) {
+func (u *user) setState(s nav.State) {
 	u.state = s
 }
