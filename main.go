@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bus_tg_bot/normalize"
 	"context"
 	"fmt"
 	"github.com/3crabs/go-bus-api/bus"
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
+	"go-bus-bot/normalize"
 	"log"
 	"strconv"
 	"strings"
@@ -38,10 +38,7 @@ func main() {
 	u := tgbot.NewUpdate(0)
 	u.Timeout = 60
 
-	updates, err := bot.GetUpdatesChan(u)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	updates := bot.GetUpdatesChan(u)
 
 	log.Println("Bot is start up!")
 

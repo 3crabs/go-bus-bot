@@ -1,6 +1,0 @@
-github.com/3crabs/go-bus-api v0.0.0-20220106095843-7b991830c300 h1:Q7dPITzCYPHRfxNRDR5jTjjxqyjf3rYjhQe0GJ9j4+0=
-github.com/3crabs/go-bus-api v0.0.0-20220106095843-7b991830c300/go.mod h1:u3pwJ5oNJuEVg+YBjOrUQ2N1m0JRXe1o0oiQwbZa2a0=
-github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible h1:2cauKuaELYAEARXRkq2LrJ0yDDv1rW7+wrTEdVL3uaU=
-github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
-github.com/technoweenie/multipartstreamer v1.0.1 h1:XRztA5MXiR1TIRHxH2uNxXxaIkKQDeX7m2XsSOlQEnM=
-github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6MDx5eUJoiEBsSvzDU9uzog=
