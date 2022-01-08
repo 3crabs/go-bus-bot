@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/3crabs/go-bus-api/bus"
+	"github.com/3crabs/go-bus-bot/nav"
 	"github.com/3crabs/go-bus-bot/normalize"
 	"github.com/3crabs/go-bus-bot/tg"
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -78,18 +79,18 @@ func main() {
 		u := getUser(chatId)
 		switch u.page {
 
-		case pageMain:
+		case nav.PageMain:
 			keyboard := [][]tgbot.InlineKeyboardButton{
-				{{Text: "Рейсы", CallbackData: pageFindRaces.link()}},
+				{{Text: "Рейсы", CallbackData: nav.PageFindRaces.Link()}},
 			}
 			description := ""
 			if u.login {
 				description = "Сейчас вам доступны все функции"
-				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Пассажиры", CallbackData: pagePassengers.link()}})
+				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Пассажиры", CallbackData: nav.PagePassengers.Link()}})
 			}
 			if !u.login {
 				description = "Сейчас вы можете только:\n- смотреть рейсы\n\nДля получения доступа ко всем функциям нужно войти"
-				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Вход", CallbackData: pageLogin.link()}})
+				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Вход", CallbackData: nav.PageLogin.Link()}})
 			}
 			t.SendPage(
 				chatId,
@@ -99,7 +100,7 @@ func main() {
 				keyboard,
 			)
 
-		case pagePassengers:
+		case nav.PagePassengers:
 			passengers, err := b.GetPassengers(context.Background(), getUser(chatId).accessToken)
 			if err != nil {
 				msg := tgbot.NewMessage(chatId, "Что то пошло не так(\n\nПопробуйте позже")
@@ -130,7 +131,7 @@ func main() {
 			msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 			_, _ = bot.Send(msg)
 
-		case pageAddMainPassenger:
+		case nav.PageAddMainPassenger:
 			switch u.state {
 			case menu:
 				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите фамилию")
@@ -257,7 +258,7 @@ func main() {
 				}
 			}
 
-		case pageOnePassenger:
+		case nav.PageOnePassenger:
 			var p bus.PassengerDTO
 			for _, passenger := range getUser(chatId).passengers {
 				if passenger.Id == getUser(chatId).pageOnePassengerData.id {
@@ -279,7 +280,7 @@ func main() {
 			msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
 			_, _ = bot.Send(msg)
 
-		case pageFindRaces:
+		case nav.PageFindRaces:
 			switch u.state {
 			case menu:
 				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки отправления или ее часть")
@@ -399,7 +400,7 @@ func main() {
 			case waitRace:
 			}
 
-		case pageLogin:
+		case nav.PageLogin:
 			switch u.state {
 			case menu:
 				msg := tgbot.NewMessage(chatId, "Вход\n\nВведите номер телефона")

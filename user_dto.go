@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/3crabs/go-bus-api/bus"
+	"github.com/3crabs/go-bus-bot/nav"
 	"strconv"
 	"strings"
 )
@@ -36,24 +37,8 @@ const (
 	waitRace        = state("waitRace")
 )
 
-type page string
-
-func (p page) link() *string {
-	s := string(p)
-	return &s
-}
-
-const (
-	pageLogin            = page("pageLogin")
-	pageMain             = page("pageMain")
-	pageFindRaces        = page("pageFindRaces")
-	pagePassengers       = page("pagePassengers")
-	pageAddMainPassenger = page("pageAddMainPassenger")
-	pageOnePassenger     = page("pageOnePassenger")
-)
-
 type user struct {
-	page                 page
+	page                 nav.Page
 	state                state
 	pageLoginData        bus.PhoneDTO
 	passengers           []bus.PassengerDTO
@@ -71,7 +56,7 @@ type user struct {
 
 func newUser() *user {
 	return &user{
-		page:  pageMain,
+		page:  nav.PageMain,
 		state: menu,
 		login: false,
 	}
@@ -80,16 +65,16 @@ func newUser() *user {
 func (u *user) setPage(data string) {
 	if data == "back" {
 		switch u.page {
-		case pageFindRaces:
-			u.page = pageMain
-		case pagePassengers:
-			u.page = pageMain
-		case pageAddMainPassenger:
-			u.page = pagePassengers
-		case pageOnePassenger:
-			u.page = pagePassengers
-		case pageLogin:
-			u.page = pageMain
+		case nav.PageFindRaces:
+			u.page = nav.PageMain
+		case nav.PagePassengers:
+			u.page = nav.PageMain
+		case nav.PageAddMainPassenger:
+			u.page = nav.PagePassengers
+		case nav.PageOnePassenger:
+			u.page = nav.PagePassengers
+		case nav.PageLogin:
+			u.page = nav.PageMain
 		}
 	} else {
 		if strings.Contains(data, "_") {
@@ -100,9 +85,9 @@ func (u *user) setPage(data string) {
 				data = words[0]
 			}
 		}
-		u.page = page(data)
+		u.page = nav.Page(data)
 	}
-	if u.page == pageMain {
+	if u.page == nav.PageMain {
 		u.state = menu
 	}
 }
