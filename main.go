@@ -452,15 +452,22 @@ func main() {
 		case nav.PageLogin:
 			switch u.State {
 			case nav.Menu:
-				msg := tgbot.NewMessage(chatId, "Вход\n\nВведите номер телефона")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Вход",
+					"",
+					"Введите номер телефона",
+					backKeyboard,
+				)
 				u.SetState(nav.WaitPhone)
 			case nav.WaitPhone:
 				phone, err := normalize.Phone(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Вход\n\nНе удалост разобрать номер, повторите попытку ввода")
-					_, _ = bot.Send(msg)
+					t.SendPageError(
+						chatId,
+						"Не удалост разобрать номер",
+						"Повторите попытку ввода",
+					)
 					continue
 				}
 				u.PageLoginData.Phone = phone
@@ -469,35 +476,55 @@ func main() {
 					{tgbot.NewInlineKeyboardButtonData("Да, я помню", "loginWithoutSMS")},
 					{tgbot.NewInlineKeyboardButtonData("Нет, пришлите по СМС", "loginWithSMS")},
 				}
-				msg := tgbot.NewMessage(chatId, "Вход\n\nПомните пароль?")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Вход",
+					"",
+					"Помните пароль?",
+					keyboard,
+				)
 				u.SetState(nav.WaitSelectLogin)
 			case nav.WaitSelectLogin:
 				if text == "loginWithSMS" {
 					if err := b.Register(context.Background(), u.PageLoginData.Phone); err != nil {
 						log.Println(err)
 					}
-					msg := tgbot.NewMessage(chatId, fmt.Sprintf("Вход\n\nНа номер %s отправлено смс с паролем\n\nВведите пароль", u.PageLoginData.Phone))
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Вход",
+						fmt.Sprintf("На номер %s отправлено смс с паролем", u.PageLoginData.Phone),
+						"Введите пароль",
+						nil,
+					)
 					u.SetState(nav.WaitPassword)
 				}
 				if text == "loginWithoutSMS" {
-					msg := tgbot.NewMessage(chatId, "Вход\n\nВведите пароль")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Вход",
+						"",
+						"Введите пароль",
+						nil,
+					)
 					u.SetState(nav.WaitPassword)
 				}
 			case nav.WaitPassword:
 				password, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Вход\n\nНе удалось разобрать пароль, повторите попытку ввода")
-					_, _ = bot.Send(msg)
+					t.SendPageError(
+						chatId,
+						"Не удалось разобрать пароль",
+						"Повторите попытку ввода",
+					)
 					continue
 				}
 				login, err := b.Login(context.Background(), u.PageLoginData.Phone, password)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Вход\n\nНе удалось авторизоваться, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPageError(
+						chatId,
+						"Не удалось авторизоваться",
+						"Попробуйте позже",
+					)
 					continue
 				}
 				u.AccessToken = login.AccessToken
