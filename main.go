@@ -86,9 +86,13 @@ func main() {
 		case nav.PagePassengers:
 			passengers, err := b.GetPassengers(context.Background(), u.AccessToken)
 			if err != nil {
-				msg := tgbot.NewMessage(chatId, "Что то пошло не так(\n\nПопробуйте позже")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Ошибка",
+					"Не удалось получить список пассажиров",
+					"Попробуйте позже",
+					backKeyboard,
+				)
 				continue
 			}
 			u.Passengers = *passengers
@@ -103,40 +107,61 @@ func main() {
 				})
 			}
 			if len(*passengers) == 0 {
-				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
-					tgbot.NewInlineKeyboardButtonData("Ввести свои данные", "pageAddMainPassenger"),
-				})
+				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Ввести свои данные", CallbackData: nav.PageAddMainPassenger.Link()}})
 			}
 			keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
 				tgbot.NewInlineKeyboardButtonData("Назад", "back"),
 			})
-			msg := tgbot.NewMessage(chatId, fmt.Sprintf("Пассажиры %d", len(*passengers)))
-			msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-			_, _ = bot.Send(msg)
+			t.SendPage(
+				chatId,
+				"Пассажиры",
+				"Количество пассажиров: "+strconv.Itoa(len(*passengers)),
+				"Выберите пассажира",
+				keyboard,
+			)
 
 		case nav.PageAddMainPassenger:
 			switch u.State {
 			case nav.Menu:
-				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите фамилию")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Создание пассажира",
+					"",
+					"Введите фамилию",
+					backKeyboard,
+				)
 				u.SetState(nav.WaitLastName)
 			case nav.WaitLastName:
 				lastName, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				u.PageAddPassengerData.LastName = lastName
-				msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nВведите имя")
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Создание пассажира",
+					"",
+					"Введите имя",
+					nil,
+				)
 				u.SetState(nav.WaitFirstName)
 			case nav.WaitFirstName:
 				firstName, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				u.PageAddPassengerData.FirstName = firstName
@@ -146,8 +171,13 @@ func main() {
 			case nav.WaitMiddleName:
 				middleName, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				keyboard := [][]tgbot.InlineKeyboardButton{
@@ -162,8 +192,13 @@ func main() {
 			case nav.WaitGender:
 				gender, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				if gender == "man" {
@@ -177,8 +212,13 @@ func main() {
 			case nav.WaitDocSeries:
 				docSeries, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				u.PageAddPassengerData.DocSeries = docSeries
@@ -188,8 +228,13 @@ func main() {
 			case nav.WaitDocNum:
 				docNum, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				u.PageAddPassengerData.DocNum = docNum
@@ -199,8 +244,13 @@ func main() {
 			case nav.WaitEmail:
 				email, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Создание пассажира\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				u.PageAddPassengerData.Email = email
@@ -273,8 +323,13 @@ func main() {
 			case nav.WaitFromPattern:
 				fromPattern, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				fromPoints, err := b.GetPointsFrom(context.Background(), fromPattern)
@@ -315,8 +370,13 @@ func main() {
 			case nav.WaitToPattern:
 				toPattern, err := normalize.String(text)
 				if err != nil {
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nНе смог разобрать текст, попробуйте позже")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Ошибка",
+						"Не смог разобрать текст",
+						"Проверьте данные и попробуйте снова",
+						nil,
+					)
 					continue
 				}
 				toPoints, err := b.GetPointsTo(context.Background(), u.PageFindRacesData.From, toPattern)
