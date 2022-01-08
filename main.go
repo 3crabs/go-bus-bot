@@ -69,6 +69,11 @@ func main() {
 		if update.Message != nil {
 			chatId = update.Message.Chat.ID
 			text = update.Message.Text
+
+			if text == "/start" {
+				u.SetPage(string(nav.PageMain))
+				u.SetState(nav.Menu)
+			}
 		}
 
 		switch u.Page {
