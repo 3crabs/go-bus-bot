@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/3crabs/go-bus-api/bus"
 	"github.com/3crabs/go-bus-bot/normalize"
+	"github.com/3crabs/go-bus-bot/tg"
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"strconv"
@@ -34,6 +35,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	t := tg.NewTg(bot)
 
 	u := tgbot.NewUpdate(0)
 	u.Timeout = 60
@@ -77,17 +80,24 @@ func main() {
 
 		case pageMain:
 			keyboard := [][]tgbot.InlineKeyboardButton{
-				{tgbot.NewInlineKeyboardButtonData("Рейсы", "pageFindRaces")},
+				{{Text: "Рейсы", CallbackData: pageFindRaces.link()}},
 			}
+			description := ""
 			if u.login {
-				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{tgbot.NewInlineKeyboardButtonData("Пассажиры", "pagePassengers")})
+				description = "Сейчас вам доступны все функции"
+				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Пассажиры", CallbackData: pagePassengers.link()}})
 			}
 			if !u.login {
-				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{tgbot.NewInlineKeyboardButtonData("Вход", "pageLogin")})
+				description = "Сейчас вы можете только:\n- смотреть рейсы\n\nДля получения доступа ко всем функциям нужно войти"
+				keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Вход", CallbackData: pageLogin.link()}})
 			}
-			msg := tgbot.NewMessage(chatId, "Главная")
-			msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-			_, _ = bot.Send(msg)
+			t.SendPage(
+				chatId,
+				"Главная",
+				description,
+				"Меню:",
+				keyboard,
+			)
 
 		case pagePassengers:
 			passengers, err := b.GetPassengers(context.Background(), getUser(chatId).accessToken)

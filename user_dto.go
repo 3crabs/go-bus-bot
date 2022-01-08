@@ -38,6 +38,11 @@ const (
 
 type page string
 
+func (p page) link() *string {
+	s := string(p)
+	return &s
+}
+
 const (
 	pageLogin            = page("pageLogin")
 	pageMain             = page("pageMain")
