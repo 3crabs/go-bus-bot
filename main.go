@@ -278,22 +278,29 @@ func main() {
 			if u.PageAddPassengerData.Gender == "F" {
 				gender = "женский"
 			}
-			msg := tgbot.NewMessage(chatId, "Информация о пассажире\n\n"+
-				fmt.Sprintf("%s %s %s\n", p.LastName, p.FirstName, p.MiddleName)+
-				fmt.Sprintf("Пол: %s\n", gender)+
-				fmt.Sprintf("Паспорт: %s %s\n", p.DocSeries, p.DocNum)+
-				fmt.Sprintf("Email: %s\n", p.Email)+
-				fmt.Sprintf("Телефон: %s\n", p.Phone),
+			t.SendPage(
+				chatId,
+				"Информация о пассажире",
+				"Информация о пассажире\n\n"+
+					fmt.Sprintf("%s %s %s\n", p.LastName, p.FirstName, p.MiddleName)+
+					fmt.Sprintf("Пол: %s\n", gender)+
+					fmt.Sprintf("Паспорт: %s %s\n", p.DocSeries, p.DocNum)+
+					fmt.Sprintf("Email: %s\n", p.Email)+
+					fmt.Sprintf("Телефон: %s\n", p.Phone),
+				"Выберите действие",
+				backKeyboard,
 			)
-			msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
-			_, _ = bot.Send(msg)
 
 		case nav.PageFindRaces:
 			switch u.State {
 			case nav.Menu:
-				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки отправления или ее часть")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(backKeyboard...)
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Рейсы",
+					"",
+					"Введите название точки отправления или ее часть",
+					backKeyboard,
+				)
 				u.SetState(nav.WaitFromPattern)
 			case nav.WaitFromPattern:
 				fromPattern, err := normalize.String(text)
@@ -306,15 +313,25 @@ func main() {
 					log.Println(err)
 				}
 				if len(*fromPoints) == 0 {
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nТочек отправления не найдено\n\nВведите название точки отправления или ее часть")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Рейсы",
+						"Точек отправления не найдено",
+						"Введите название точки отправления или ее часть",
+						nil,
+					)
 					u.SetState(nav.WaitFromPattern)
 				}
 				if len(*fromPoints) == 1 {
 					id := (*fromPoints)[0].Id
 					u.PageFindRacesData.From = id
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки прибытия или ее часть")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Рейсы",
+						"",
+						"Введите название точки прибытия или ее часть",
+						nil,
+					)
 					u.SetState(nav.WaitToPattern)
 				}
 				if len(*fromPoints) > 1 {
@@ -325,16 +342,25 @@ func main() {
 							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitFrom_%d", p.Id)),
 						})
 					}
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку отправления")
-					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Рейсы",
+						"",
+						"Выберите точку отправления",
+						keyboard,
+					)
 					u.SetState(nav.WaitFrom)
 				}
 			case nav.WaitFrom:
 				id, _ := strconv.Atoi(buttonID)
 				u.PageFindRacesData.From = id
-				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки прибытия или ее часть")
-				_, _ = bot.Send(msg)
+				t.SendPage(
+					chatId,
+					"Рейсы",
+					"",
+					"Введите название точки прибытия или ее часть",
+					nil,
+				)
 				u.SetState(nav.WaitToPattern)
 			case nav.WaitToPattern:
 				toPattern, err := normalize.String(text)
@@ -347,8 +373,13 @@ func main() {
 					log.Println(err)
 				}
 				if len(*toPoints) == 0 {
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nТочек прибытия не найдено\n\nВведите название точки отправления или ее часть")
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Рейсы",
+						"Точек прибытия не найдено",
+						"Введите название точки отправления или ее часть",
+						nil,
+					)
 					u.SetState(nav.WaitToPattern)
 				}
 				if len(*toPoints) == 1 {
@@ -366,10 +397,14 @@ func main() {
 							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitRace_%s", r.Uid)),
 						})
 					}
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите рейс")
-					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
+					t.SendPage(
+						chatId,
+						"Рейсы",
+						"",
+						"Выберите рейс",
+						keyboard,
+					)
 					u.SetState(nav.WaitRace)
-					_, _ = bot.Send(msg)
 				}
 				if len(*toPoints) > 1 {
 					var keyboard [][]tgbot.InlineKeyboardButton
@@ -379,9 +414,13 @@ func main() {
 							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitTo_%d", p.Id)),
 						})
 					}
-					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку прибытия")
-					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-					_, _ = bot.Send(msg)
+					t.SendPage(
+						chatId,
+						"Рейсы",
+						"",
+						"Выберите точку прибытия",
+						keyboard,
+					)
 					u.SetState(nav.WaitTo)
 				}
 			case nav.WaitTo:
@@ -399,10 +438,14 @@ func main() {
 						tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitRace_%s", r.Uid)),
 					})
 				}
-				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите рейс")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
+				t.SendPage(
+					chatId,
+					"Рейсы",
+					"",
+					"Выберите рейс",
+					keyboard,
+				)
 				u.SetState(nav.WaitRace)
-				_, _ = bot.Send(msg)
 			case nav.WaitRace:
 			}
 
