@@ -537,6 +537,15 @@ func main() {
 
 				t.ShowPageMain(chatId, u)
 			}
+
+		case nav.PageFeedback:
+			t.SendPage(
+				chatId,
+				"Отзывы",
+				"",
+				"Выберите действие",
+				nil,
+			)
 		}
 	}
 }

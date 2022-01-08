@@ -45,6 +45,7 @@ func (t *tg) ShowPageMain(chatId int64, u *user.User) {
 	if u.Login {
 		description = "Сейчас вам доступны все функции"
 		keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Пассажиры", CallbackData: nav.PagePassengers.Link()}})
+		keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Отзывы", CallbackData: nav.PageFeedback.Link()}})
 	}
 	if !u.Login {
 		description = "Сейчас вы можете только:\n- смотреть рейсы\n\nДля получения доступа ко всем функциям нужно войти"

@@ -20,6 +20,8 @@ const (
 
 	PagePassengers = Page("pagePassengers")
 
+	PageFeedback = Page("pageFeedback")
+
 	PageAddMainPassenger = Page("pageAddMainPassenger")
 	WaitGender           = State("waitGender")
 	WaitLastName         = State("waitLastName")
