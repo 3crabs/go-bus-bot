@@ -2,6 +2,8 @@ package tg
 
 import (
 	"fmt"
+	"github.com/3crabs/go-bus-bot/nav"
+	"github.com/3crabs/go-bus-bot/user"
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 )
@@ -29,4 +31,27 @@ func (t *tg) SendPage(chatId int64, title, description, action string, keyboard 
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (t *tg) ShowPageMain(chatId int64, u *user.User) {
+	keyboard := [][]tgbot.InlineKeyboardButton{
+		{{Text: "Рейсы", CallbackData: nav.PageFindRaces.Link()}},
+	}
+	description := ""
+	if u.Login {
+		description = "Сейчас вам доступны все функции"
+		keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Пассажиры", CallbackData: nav.PagePassengers.Link()}})
+	}
+	if !u.Login {
+		description = "Сейчас вы можете только:\n- смотреть рейсы\n\nДля получения доступа ко всем функциям нужно войти"
+		keyboard = append(keyboard, []tgbot.InlineKeyboardButton{{Text: "Вход", CallbackData: nav.PageLogin.Link()}})
+	}
+	t.SendPage(
+		chatId,
+		"Главная",
+		description,
+		"Меню:",
+		keyboard,
+	)
+	u.SetState(nav.Menu)
 }
