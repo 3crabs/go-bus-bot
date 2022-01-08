@@ -16,6 +16,10 @@ func NewTg(bot *tgbot.BotAPI) *tg {
 	return &tg{bot: bot}
 }
 
+func (t *tg) SendPageError(chatId int64, description, action string) {
+	t.SendPage(chatId, "Ошибка", description, action, nil)
+}
+
 func (t *tg) SendPage(chatId int64, title, description, action string, keyboard [][]tgbot.InlineKeyboardButton) {
 	text := ""
 	if description != "" {
