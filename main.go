@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/3crabs/go-bus-api/bus"
+	"github.com/3crabs/go-bus-bot/normalize"
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
-	"go-bus-bot/normalize"
 	"log"
 	"strconv"
 	"strings"
@@ -38,7 +38,10 @@ func main() {
 	u := tgbot.NewUpdate(0)
 	u.Timeout = 60
 
-	updates := bot.GetUpdatesChan(u)
+	updates, err := bot.GetUpdatesChan(u)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	log.Println("Bot is start up!")
 
@@ -284,17 +287,31 @@ func main() {
 				if err != nil {
 					log.Println(err)
 				}
-				var keyboard [][]tgbot.InlineKeyboardButton
-				for _, p := range *fromPoints {
-					name := fmt.Sprintf("%s %s", p.Name, p.Address)
-					keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
-						tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitFrom_%d", p.Id)),
-					})
+				if len(*fromPoints) == 0 {
+					msg := tgbot.NewMessage(chatId, "Рейсы\n\nТочек отправления не найдено\n\nВведите название точки отправления или ее часть")
+					_, _ = bot.Send(msg)
+					getUser(chatId).setState(waitFromPattern)
 				}
-				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку отправления")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitFrom)
+				if len(*fromPoints) == 1 {
+					id := (*fromPoints)[0].Id
+					getUser(chatId).pageFindRacesData.from = id
+					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВведите название точки прибытия или ее часть")
+					_, _ = bot.Send(msg)
+					getUser(chatId).setState(waitToPattern)
+				}
+				if len(*fromPoints) > 1 {
+					var keyboard [][]tgbot.InlineKeyboardButton
+					for _, p := range *fromPoints {
+						name := fmt.Sprintf("%s %s", p.Name, p.Address)
+						keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
+							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitFrom_%d", p.Id)),
+						})
+					}
+					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку отправления")
+					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
+					_, _ = bot.Send(msg)
+					getUser(chatId).setState(waitFrom)
+				}
 			case waitFrom:
 				id, _ := strconv.Atoi(buttonID)
 				getUser(chatId).pageFindRacesData.from = id
@@ -312,22 +329,49 @@ func main() {
 				if err != nil {
 					log.Println(err)
 				}
-				var keyboard [][]tgbot.InlineKeyboardButton
-				for _, p := range *toPoints {
-					name := fmt.Sprintf("%s %s", p.Name, p.Address)
-					keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
-						tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitTo_%d", p.Id)),
-					})
+				if len(*toPoints) == 0 {
+					msg := tgbot.NewMessage(chatId, "Рейсы\n\nТочек прибытия не найдено\n\nВведите название точки отправления или ее часть")
+					_, _ = bot.Send(msg)
+					getUser(chatId).setState(waitToPattern)
 				}
-				msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку прибытия")
-				msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
-				_, _ = bot.Send(msg)
-				getUser(chatId).setState(waitTo)
+				if len(*toPoints) == 1 {
+					id := (*toPoints)[0].Id
+					getUser(chatId).pageFindRacesData.to = id
+					date := getUser(chatId).pageFindRacesData
+					races, err := b.GetRaces(context.Background(), date.from, date.to, "10.01.2022", 1)
+					if err != nil {
+						log.Println(err)
+					}
+					var keyboard [][]tgbot.InlineKeyboardButton
+					for _, r := range *races {
+						name := fmt.Sprintf("%v %.2fруб", r.ArrivalDate.Format("15:04"), r.Price)
+						keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
+							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitRace_%s", r.Uid)),
+						})
+					}
+					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите рейс")
+					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
+					getUser(chatId).setState(waitRace)
+					_, _ = bot.Send(msg)
+				}
+				if len(*toPoints) > 1 {
+					var keyboard [][]tgbot.InlineKeyboardButton
+					for _, p := range *toPoints {
+						name := fmt.Sprintf("%s %s", p.Name, p.Address)
+						keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
+							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitTo_%d", p.Id)),
+						})
+					}
+					msg := tgbot.NewMessage(chatId, "Рейсы\n\nВыберите точку прибытия")
+					msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
+					_, _ = bot.Send(msg)
+					getUser(chatId).setState(waitTo)
+				}
 			case waitTo:
 				id, _ := strconv.Atoi(buttonID)
 				getUser(chatId).pageFindRacesData.to = id
 				date := getUser(chatId).pageFindRacesData
-				races, err := b.GetRaces(context.Background(), date.from, date.to, "08.01.2022", 1)
+				races, err := b.GetRaces(context.Background(), date.from, date.to, "10.01.2022", 1)
 				if err != nil {
 					log.Println(err)
 				}
@@ -343,7 +387,6 @@ func main() {
 				getUser(chatId).setState(waitRace)
 				_, _ = bot.Send(msg)
 			case waitRace:
-
 			}
 
 		case pageLogin:
