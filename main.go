@@ -21,7 +21,7 @@ var backKeyboard = [][]tgbot.InlineKeyboardButton{
 func main() {
 	s := server.NewServer()
 
-	b := bus.NewBus("http", "185.119.59.74:8090")
+	b := bus.NewBus("http", "185.119.59.74", "/api/bus")
 	log.Println("Create Bus SDK")
 
 	bot, err := tgbot.NewBotAPI("5087528840:AAFSQGdR2zxUI6PzEiac9UoWJees1s74Ap4")
@@ -316,6 +316,7 @@ func main() {
 				fromPoints, err := b.GetPointsFrom(context.Background(), fromPattern)
 				if err != nil {
 					log.Println(err)
+					continue
 				}
 				if len(*fromPoints) == 0 {
 					t.SendPage(
