@@ -12,7 +12,7 @@ type User struct {
 	State                nav.State
 	PageLoginData        bus.PhoneDTO
 	Passengers           []bus.PassengerDTO
-	PageAddPassengerData bus.PassengerCreateDTO
+	PageAddPassengerData bus.PassengerCreateRequest
 	PageOnePassengerData struct {
 		Id int
 	}

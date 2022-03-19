@@ -1,7 +1,7 @@
-github.com/3crabs/go-bus-api v0.3.1 h1:vnm3pLRRJkB6OO/NQQmYHOZBipS6/gjiQFSCyvXLPLA=
-github.com/3crabs/go-bus-api v0.3.1/go.mod h1:escTNaQ4lD5GE3t9KEXpjQIAQpneEgtEm7xoYqrdjr0=
-github.com/3crabs/go-requests v1.0.1 h1:p9m0465l5AMzvPplYvyMmj13ZP7UwfNVb0CT3OBJYc4=
-github.com/3crabs/go-requests v1.0.1/go.mod h1:lgVLltzn4GwoXX2DhxTyea4EaWcPaIUh2AYJl/3T6I0=
+github.com/3crabs/go-bus-api v1.0.0 h1:ANzYD1Mz9gwWtLJlVynyf7+pnGk/8BMD6VHKqthfw8o=
+github.com/3crabs/go-bus-api v1.0.0/go.mod h1:EdFvo23dT/E9Wh6LgjGFtWPZTCzY/c9StgMd0xpm2Ls=
+github.com/3crabs/go-requests v1.1.0 h1:ytj4iJNusSHmB3QcPgR7J+47lgGUJzorVWWVE8MUs/A=
+github.com/3crabs/go-requests v1.1.0/go.mod h1:lgVLltzn4GwoXX2DhxTyea4EaWcPaIUh2AYJl/3T6I0=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible h1:2cauKuaELYAEARXRkq2LrJ0yDDv1rW7+wrTEdVL3uaU=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
 github.com/technoweenie/multipartstreamer v1.0.1 h1:XRztA5MXiR1TIRHxH2uNxXxaIkKQDeX7m2XsSOlQEnM=
