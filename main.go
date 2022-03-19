@@ -50,6 +50,7 @@ func main() {
 
 		var chatId int64
 		var text string
+		var userMessageId int
 		var buttonID string
 		u := s.GetUser(chatId)
 
@@ -69,6 +70,7 @@ func main() {
 		if update.Message != nil {
 			chatId = update.Message.Chat.ID
 			text = update.Message.Text
+			userMessageId = update.Message.MessageID
 
 			if text == "/start" {
 				u.SetPage(string(nav.PageMain))
@@ -79,12 +81,12 @@ func main() {
 		switch u.Page {
 
 		case nav.PageMain:
-			t.ShowPageMain(chatId, u)
+			t.ShowPageMain(chatId, userMessageId, u)
 
 		case nav.PagePassengers:
 			passengers, err := b.GetPassengers(context.Background(), u.AccessToken)
 			if err != nil {
-				t.SendPageError(chatId, "Не удалось получить список пассажиров", "Попробуйте позже")
+				t.SendPageError(chatId, userMessageId, "Не удалось получить список пассажиров", "Попробуйте позже")
 				continue
 			}
 			u.Passengers = *passengers
@@ -106,6 +108,7 @@ func main() {
 			})
 			t.SendPage(
 				chatId,
+				userMessageId,
 				"Пассажиры",
 				"Количество пассажиров: "+strconv.Itoa(len(*passengers)),
 				"Выберите пассажира",
@@ -117,6 +120,7 @@ func main() {
 			case nav.Menu:
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Введите фамилию",
@@ -126,12 +130,13 @@ func main() {
 			case nav.WaitLastName:
 				lastName, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				u.PageAddPassengerData.LastName = lastName
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Введите имя",
@@ -141,12 +146,13 @@ func main() {
 			case nav.WaitFirstName:
 				firstName, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				u.PageAddPassengerData.FirstName = firstName
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Введите отчество",
@@ -156,7 +162,7 @@ func main() {
 			case nav.WaitMiddleName:
 				middleName, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				keyboard := [][]tgbot.InlineKeyboardButton{
@@ -166,6 +172,7 @@ func main() {
 				u.PageAddPassengerData.MiddleName = middleName
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Выберите пол",
@@ -175,7 +182,7 @@ func main() {
 			case nav.WaitGender:
 				gender, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				if gender == "man" {
@@ -185,6 +192,7 @@ func main() {
 				}
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Введите серию паспорта",
@@ -194,12 +202,13 @@ func main() {
 			case nav.WaitDocSeries:
 				docSeries, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				u.PageAddPassengerData.DocSeries = docSeries
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Введите номер паспорта",
@@ -209,12 +218,13 @@ func main() {
 			case nav.WaitDocNum:
 				docNum, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				u.PageAddPassengerData.DocNum = docNum
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"",
 					"Введите почту",
@@ -224,7 +234,7 @@ func main() {
 			case nav.WaitEmail:
 				email, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				u.PageAddPassengerData.Email = email
@@ -242,6 +252,7 @@ func main() {
 				}
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Создание пассажира",
 					"Проверьте свои данные\n\n"+
 						fmt.Sprintf("%s %s %s\n", p.LastName, p.FirstName, p.MiddleName)+
@@ -257,11 +268,12 @@ func main() {
 				if text == "submit" {
 					_, err := b.AddPassenger(context.Background(), u.AccessToken, u.PageAddPassengerData)
 					if err != nil {
-						t.SendPageError(chatId, "Не удалось добавить пассажира", "Проверьте данные и попробуйте позже")
+						t.SendPageError(chatId, userMessageId, "Не удалось добавить пассажира", "Проверьте данные и попробуйте позже")
 						continue
 					}
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Создание пассажира",
 						"",
 						"Пассажир успешно добавлен",
@@ -285,6 +297,7 @@ func main() {
 			}
 			t.SendPage(
 				chatId,
+				userMessageId,
 				"Информация о пассажире",
 				"Информация о пассажире\n\n"+
 					fmt.Sprintf("%s %s %s\n", p.LastName, p.FirstName, p.MiddleName)+
@@ -301,6 +314,7 @@ func main() {
 			case nav.Menu:
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Рейсы",
 					"",
 					"Введите название точки отправления или ее часть",
@@ -310,7 +324,7 @@ func main() {
 			case nav.WaitFromPattern:
 				fromPattern, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				fromPoints, err := b.GetPointsFrom(context.Background(), fromPattern)
@@ -321,6 +335,7 @@ func main() {
 				if len(*fromPoints) == 0 {
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Рейсы",
 						"Точек отправления не найдено",
 						"Введите название точки отправления или ее часть",
@@ -333,6 +348,7 @@ func main() {
 					u.PageFindRacesData.From = id
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Рейсы",
 						"",
 						"Введите название точки прибытия или ее часть",
@@ -350,6 +366,7 @@ func main() {
 					}
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Рейсы",
 						"",
 						"Выберите точку отправления",
@@ -362,6 +379,7 @@ func main() {
 				u.PageFindRacesData.From = id
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Рейсы",
 					"",
 					"Введите название точки прибытия или ее часть",
@@ -371,7 +389,7 @@ func main() {
 			case nav.WaitToPattern:
 				toPattern, err := normalize.String(text)
 				if err != nil {
-					t.SendPageError(chatId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
+					t.SendPageError(chatId, userMessageId, "Не смог разобрать текст", "Проверьте данные и попробуйте снова")
 					continue
 				}
 				toPoints, err := b.GetPointsTo(context.Background(), u.PageFindRacesData.From, toPattern)
@@ -381,6 +399,7 @@ func main() {
 				if len(*toPoints) == 0 {
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Рейсы",
 						"Точек прибытия не найдено",
 						"Введите название точки отправления или ее часть",
@@ -396,21 +415,34 @@ func main() {
 					if err != nil {
 						log.Println(err)
 					}
-					var keyboard [][]tgbot.InlineKeyboardButton
-					for _, r := range *races {
-						name := fmt.Sprintf("%v %.2fруб", r.ArrivalDate.Format("15:04"), r.Price)
-						keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
-							tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitRace_%s", r.Uid)),
-						})
+					if len(*races) > 0 {
+						var keyboard [][]tgbot.InlineKeyboardButton
+						for _, r := range *races {
+							name := fmt.Sprintf("%v %.2fруб", r.ArrivalDate.Format("15:04"), r.Price)
+							keyboard = append(keyboard, []tgbot.InlineKeyboardButton{
+								tgbot.NewInlineKeyboardButtonData(name, fmt.Sprintf("waitRace_%s", r.Uid)),
+							})
+						}
+						t.SendPage(
+							chatId,
+							userMessageId,
+							"Рейсы",
+							"",
+							"Выберите рейс",
+							keyboard,
+						)
+						u.SetState(nav.WaitRace)
 					}
-					t.SendPage(
-						chatId,
-						"Рейсы",
-						"",
-						"Выберите рейс",
-						keyboard,
-					)
-					u.SetState(nav.WaitRace)
+					if len(*races) == 0 {
+						t.SendPage(
+							chatId,
+							userMessageId,
+							"Рейсы не найдены(",
+							"",
+							"Выберите действие",
+							backKeyboard,
+						)
+					}
 				}
 				if len(*toPoints) > 1 {
 					var keyboard [][]tgbot.InlineKeyboardButton
@@ -422,6 +454,7 @@ func main() {
 					}
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Рейсы",
 						"",
 						"Выберите точку прибытия",
@@ -446,6 +479,7 @@ func main() {
 				}
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Рейсы",
 					"",
 					"Выберите рейс",
@@ -460,6 +494,7 @@ func main() {
 			case nav.Menu:
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Вход",
 					"",
 					"Введите номер телефона",
@@ -471,6 +506,7 @@ func main() {
 				if err != nil {
 					t.SendPageError(
 						chatId,
+						userMessageId,
 						"Не удалост разобрать номер",
 						"Повторите попытку ввода",
 					)
@@ -484,6 +520,7 @@ func main() {
 				}
 				t.SendPage(
 					chatId,
+					userMessageId,
 					"Вход",
 					"",
 					"Помните пароль?",
@@ -497,6 +534,7 @@ func main() {
 					}
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Вход",
 						fmt.Sprintf("На номер %s отправлено смс с паролем", u.PageLoginData.Phone),
 						"Введите пароль",
@@ -507,6 +545,7 @@ func main() {
 				if text == "loginWithoutSMS" {
 					t.SendPage(
 						chatId,
+						userMessageId,
 						"Вход",
 						"",
 						"Введите пароль",
@@ -519,6 +558,7 @@ func main() {
 				if err != nil {
 					t.SendPageError(
 						chatId,
+						userMessageId,
 						"Не удалось разобрать пароль",
 						"Повторите попытку ввода",
 					)
@@ -528,6 +568,7 @@ func main() {
 				if err != nil {
 					t.SendPageError(
 						chatId,
+						userMessageId,
 						"Не удалось авторизоваться",
 						"Попробуйте позже",
 					)
@@ -536,12 +577,13 @@ func main() {
 				u.AccessToken = login.AccessToken
 				u.Login = true
 
-				t.ShowPageMain(chatId, u)
+				t.ShowPageMain(chatId, userMessageId, u)
 			}
 
 		case nav.PageFeedback:
 			t.SendPage(
 				chatId,
+				userMessageId,
 				"Отзывы",
 				"",
 				"Выберите действие",

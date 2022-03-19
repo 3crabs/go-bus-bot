@@ -16,11 +16,13 @@ func NewTg(bot *tgbot.BotAPI) *tg {
 	return &tg{bot: bot}
 }
 
-func (t *tg) SendPageError(chatId int64, description, action string) {
-	t.SendPage(chatId, "Ошибка", description, action, nil)
+func (t *tg) SendPageError(chatId int64, userMessageId int, description, action string) {
+	t.SendPage(chatId, userMessageId, "Ошибка", description, action, nil)
 }
 
-func (t *tg) SendPage(chatId int64, title, description, action string, keyboard [][]tgbot.InlineKeyboardButton) {
+var messageId = 0
+
+func (t *tg) SendPage(chatId int64, userMessageId int, title, description, action string, keyboard [][]tgbot.InlineKeyboardButton) {
 	text := ""
 	if description != "" {
 		text = fmt.Sprintf("%s\n\n%s\n\n%s", title, description, action)
@@ -31,13 +33,24 @@ func (t *tg) SendPage(chatId int64, title, description, action string, keyboard 
 	if keyboard != nil {
 		msg.ReplyMarkup = tgbot.NewInlineKeyboardMarkup(keyboard...)
 	}
-	_, err := t.bot.Send(msg)
+	if messageId != 0 {
+		_, _ = t.bot.DeleteMessage(tgbot.DeleteMessageConfig{
+			ChatID:    chatId,
+			MessageID: messageId,
+		})
+		_, _ = t.bot.DeleteMessage(tgbot.DeleteMessageConfig{
+			ChatID:    chatId,
+			MessageID: userMessageId,
+		})
+	}
+	m, err := t.bot.Send(msg)
+	messageId = m.MessageID
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func (t *tg) ShowPageMain(chatId int64, u *user.User) {
+func (t *tg) ShowPageMain(chatId int64, userMessageId int, u *user.User) {
 	keyboard := [][]tgbot.InlineKeyboardButton{
 		{{Text: "Рейсы", CallbackData: nav.PageFindRaces.Link()}},
 	}
@@ -53,6 +66,7 @@ func (t *tg) ShowPageMain(chatId int64, u *user.User) {
 	}
 	t.SendPage(
 		chatId,
+		userMessageId,
 		"Главная",
 		description,
 		"Меню:",
